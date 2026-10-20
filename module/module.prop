@@ -1,0 +1,6 @@
+id=wirefix
+name=WireFix 耳机路由修复
+version=1.0
+versionCode=1
+author=zhuanjia
+description=修复 MTK 平台 LineageOS/GSI 下 3.5mm 有线耳机无声（音频不切换路由、耳机与扬声器同时出声）的问题。为 WireFix 提权为系统应用并授予 MODIFY_AUDIO_ROUTING，root 守护脚本轮询 ACCDET 状态自动切换音频路由。

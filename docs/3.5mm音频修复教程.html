@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3.5mm 有线耳机无声修复完全指南</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1f2328;
+  --muted: #59636e;
+  --border: #d8dee4;
+  --accent: #0969da;
+  --code-bg: #f6f8fa;
+  --warn-bg: #fff8e6;
+  --warn-bd: #f0b429;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: 48px 24px 120px; }
+
+h1 { font-size: 30px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.3px; }
+h2 {
+  font-size: 22px; font-weight: 650; margin: 56px 0 16px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+h3 { font-size: 17px; font-weight: 650; margin: 32px 0 12px; }
+h4 { font-size: 15px; font-weight: 650; margin: 24px 0 8px; color: var(--muted); }
+
+p { margin: 12px 0; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+blockquote {
+  margin: 16px 0; padding: 12px 18px;
+  background: var(--warn-bg); border-left: 4px solid var(--warn-bd);
+  border-radius: 0 6px 6px 0; color: #4a3800;
+}
+blockquote p { margin: 6px 0; }
+
+code {
+  background: var(--code-bg); padding: 2px 6px; border-radius: 4px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px; border: 1px solid rgba(0,0,0,0.04);
+}
+pre {
+  background: #f6f8fa; border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto; margin: 16px 0;
+  font-size: 13px; line-height: 1.6;
+}
+pre code { background: none; padding: 0; border: none; font-size: 13px; }
+
+table {
+  border-collapse: collapse; width: 100%; margin: 18px 0;
+  font-size: 14px; display: block; overflow-x: auto;
+}
+th, td { border: 1px solid var(--border); padding: 9px 13px; text-align: left; vertical-align: top; }
+th { background: #f6f8fa; font-weight: 650; }
+tr:nth-child(even) td { background: #fcfcfd; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 44px 0; }
+
+ul, ol { padding-left: 26px; margin: 12px 0; }
+li { margin: 6px 0; }
+
+.toc { background: #f6f8fa; border: 1px solid var(--border); border-radius: 8px; padding: 18px 24px; margin: 28px 0; }
+.toc > ul { list-style: none; padding-left: 0; margin: 0; }
+.toc li { margin: 5px 0; }
+
+.diagram {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px; line-height: 1.35; white-space: pre; overflow-x: auto;
+  background: #fafbfc; border: 1px solid var(--border); border-radius: 8px;
+  padding: 18px; margin: 18px 0;
+}
+
+.meta { color: var(--muted); font-size: 14px; margin-bottom: 4px; }
+.badge {
+  display: inline-block; background: #ddf4ff; color: #0969da;
+  border-radius: 20px; padding: 2px 12px; font-size: 12px;
+  font-weight: 600; margin-right: 6px;
+}
+
+@media print {
+  .wrap { max-width: none; padding: 0; }
+  h2 { page-break-after: avoid; }
+  pre, table, blockquote { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1 id="35mm">3.5mm 有线耳机无声修复完全指南</h1>
+<blockquote>
+<p>从现象到根因到修复的完整实战记录
+适用平台：MTK 平台 + LineageOS 18.1 GSI（Phh-Treble）+ Android 11 system / Android 10 vendor
+实测设备：酷比魔方 iPlay30（MT6771V / Helio P60，4GB RAM，1200×1920）
+文档版本：1.0 ｜ 2026-10-20</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录</h2>
+<nav class="toc"><ol><li><a href="#问题现象">问题现象</a></li><li><a href="#先搞清楚这到底是不是硬件坏了">先搞清楚：这到底是不是硬件坏了</a></li><li><a href="#定位根因四层链路逐一排查">定位根因：四层链路逐一排查</a></li><li><a href="#根因结论">根因结论</a></li><li><a href="#正常系统是怎么做的原理">正常系统是怎么做的（原理）</a></li><li><a href="#修复方案演进为什么最后选了APK">修复方案演进：为什么最后选了 APK</a></li><li><a href="#完整实施步骤">完整实施步骤</a></li><li><a href="#踩过的坑重要别人一定会遇到">踩过的坑（重要，别人一定会遇到）</a></li><li><a href="#验证与回归测试">验证与回归测试</a></li><li><a href="#卸载回滚">卸载回滚</a></li><li><a href="#附录命令速查与原理索引">附录：命令速查与原理索引</a></li></ol></nav>
+<hr />
+<h2 id="问题现象">1. 问题现象</h2>
+<p>一台刷了 LineageOS 18.1 GSI 的平板，3.5mm 耳机口出问题，症状随时间推移呈现出<strong>三种不同状态</strong>，这本身是重要线索：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>现象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始</td>
+<td>插入耳机，<strong>完全无声</strong>（耳机没声、平板扬声器也没声）</td>
+</tr>
+<tr>
+<td>中期</td>
+<td>手动调过 mixer 后，<strong>耳机和平板同时出声</strong></td>
+</tr>
+<tr>
+<td>后期</td>
+<td>mixer 回滚后，<strong>耳机响、平板也响</strong>（双路输出）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键判断</strong>：症状会"变"，说明<strong>不是断线、不是焊点脱落</strong>。
+纯硬件损坏不会因为软件操作改变表现。问题在软件层（路由/检测），硬件通路是好的。</p>
+</blockquote>
+<p>连带的历史改动：此前为了修蓝牙音频，关过 A2DP offload（<code>persist.sys.phh.disable_a2dp_offload=true</code>），这个改动与耳机问题无因果关系，但排查时要排除掉。</p>
+<hr />
+<h2 id="先搞清楚这到底是不是硬件坏了">2. 先搞清楚：这到底是不是硬件坏了</h2>
+<p><strong>做任何软件修复前，必须先证明硬件通路是通的。</strong> 否则可能在错误的层面上折腾一整天。</p>
+<h3 id="21">2.1 确认设备身份与系统分层</h3>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>getprop<span class="w"> </span>ro.product.model
+adb<span class="w"> </span>shell<span class="w"> </span>getprop<span class="w"> </span>ro.build.version.release<span class="w">        </span><span class="c1"># 11</span>
+adb<span class="w"> </span>shell<span class="w"> </span>getprop<span class="w"> </span>ro.vendor.build.version.release<span class="w"> </span><span class="c1"># 10  ← vendor 是原厂 Android 10</span>
+adb<span class="w"> </span>shell<span class="w"> </span>getprop<span class="w"> </span>ro.build.type<span class="w">                   </span><span class="c1"># userdebug</span>
+adb<span class="w"> </span>shell<span class="w"> </span>getprop<span class="w"> </span>ro.debuggable<span class="w">                   </span><span class="c1"># 1</span>
+</code></pre></div>
+
+<p>本机结论：<strong>system = Android 11 (SDK 30)，vendor = 原厂 Android 10 (SDK 29)，VNDK 29</strong>。
+这是典型的 GSI 混搭，音频 HAL 是原厂的，框架是 AOSP 的——<strong>两者对接口的理解可能有版本差</strong>，这是后面问题的土壤。</p>
+<h3 id="22-vendor">2.2 确认 vendor 驱动没丢</h3>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>getprop<span class="w"> </span>ro.vendor.build.fingerprint<span class="w">   </span><span class="c1"># 应含 release-keys</span>
+adb<span class="w"> </span>shell<span class="w"> </span>ls<span class="w"> </span>/vendor/lib/hw/<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>audio<span class="w">       </span><span class="c1"># 应有 audio.primary.default.so</span>
+adb<span class="w"> </span>shell<span class="w"> </span>ls<span class="w"> </span>/vendor/lib64/hw/<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>audio
+</code></pre></div>
+
+<p>本机 <code>ro.vendor.build.tags=release-keys</code>，驱动完整。
+→ <strong>可以否定"从官方固件提取驱动"的思路</strong>，这条路不用走。</p>
+<h3 id="23">2.3 直接验证硬件通路：手动开功放</h3>
+<p>这是决定性的一步。用 <code>tinymix</code> 手动打开耳机通路，如果耳机能出声，就证明 <strong>DAC → 耳机座 → 耳机</strong> 整条模拟链路完好。</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span>-D<span class="w"> </span><span class="m">0</span><span class="w">     </span><span class="c1"># 列出所有控件，先看清楚有什么</span>
+</code></pre></div>
+
+<p>本机（MTK 音频 codec）关键控件：</p>
+<table>
+<thead>
+<tr>
+<th>控件 ID</th>
+<th>名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td><code>Speaker_Amp_Switch</code></td>
+<td>扬声器功放</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>Audio_Amp_L_Switch</code> / <code>Audio_Amp_R_Switch</code></td>
+<td>主音频功放左右声道</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>Headset_Speaker_Amp_Switch</code></td>
+<td><strong>耳机/扬声器共用主功放</strong>（重点！）</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>Headset_PGAL_GAIN</code> / <code>Headset_PGAR_GAIN</code></td>
+<td>耳机 PGA 增益</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>Headphone Plugged In</code></td>
+<td>耳机插入状态（只读）</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>DAC_LOOP_DAC_HP</code> / <code>DAC_LOOP_DAC_HS</code></td>
+<td>DAC 回环测试</td>
+</tr>
+</tbody>
+</table>
+<p>手动测试命令：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="m">3</span><span class="w"> </span>On<span class="w">                      </span><span class="c1"># 开扬声器功放</span>
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Audio_Amp_L_Switch"</span><span class="w"> </span>On
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Audio_Amp_R_Switch"</span><span class="w"> </span>On
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Headset_Speaker_Amp_Switch"</span><span class="w"> </span>On
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Headset_PGAL_GAIN"</span><span class="w"> </span>2Db
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Headset_PGAR_GAIN"</span><span class="w"> </span>2Db
+adb<span class="w"> </span>shell<span class="w"> </span>-c<span class="w"> </span><span class="s2">"setprop ctl.restart audioserver"</span><span class="w">   </span><span class="c1"># 或者直接 play 一段音乐</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>实测结果：耳机出声了。</strong>
+→ 硬件通路 100% 完好。问题锁定在<strong>软件路由</strong>。</p>
+</blockquote>
+<h3 id="24">2.4 血泪教训：混音器不要乱动</h3>
+<p>测试过程中我曾把 <code>Speaker_Amp_Switch</code> 关掉（以为能"静音扬声器只留耳机"），结果<strong>两边全哑</strong>。</p>
+<p>原因：<code>Headset_Speaker_Amp_Switch</code> 是<strong>耳机和扬声器共用的主功放</strong>，把 <code>Speaker_Amp_Switch</code> 关掉后整个输出被切断，耳机也跟着没声。</p>
+<p><strong>正确做法</strong>：不要试图通过 mixer 混音器"手动切路由"。混音器是底层开关，路由应该由上层 AudioPolicy 决策。混音器只用于<strong>验证硬件</strong>，验证完必须完整回滚。</p>
+<p>完整回滚命令：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="m">3</span><span class="w"> </span>Off
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Audio_Amp_L_Switch"</span><span class="w"> </span>Off
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Audio_Amp_R_Switch"</span><span class="w"> </span>Off
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Headset_Speaker_Amp_Switch"</span><span class="w"> </span>Off
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Headset_PGAL_GAIN"</span><span class="w"> </span>2Db
+adb<span class="w"> </span>shell<span class="w"> </span>tinymix<span class="w"> </span><span class="s2">"Headset_PGAR_GAIN"</span><span class="w"> </span>2Db
+adb<span class="w"> </span>shell<span class="w"> </span>-c<span class="w"> </span><span class="s2">"setprop ctl.restart audioserver"</span>
+</code></pre></div>
+
+<hr />
+<h2 id="定位根因四层链路逐一排查">3. 定位根因：四层链路逐一排查</h2>
+<p>Android 有线耳机从"物理插入"到"声音从耳机出来"，要经过 <strong>4 层</strong>。任何一层断了都会表现为"耳机无声"。</p>
+<div class="hl"><pre><span></span><code>┌─────────────┐   ①物理检测    ┌──────────────┐   ②input上报   ┌────────────────┐
+│  3.5mm 座    │ ─────────────&gt; │ MTK ACCDET   │ ─────────────&gt; │ InputReader    │
+│  插头/簧片   │                │ 驱动 (kernel) │                │ SwitchValues   │
+└─────────────┘                └──────────────┘                └────────────────┘
+                                                                        │
+                                                                        │ ③广播
+                                                                        ▼
+┌─────────────┐   ⑥HAL执行    ┌──────────────┐   ⑤切设备      ┌────────────────┐
+│  Audio HAL  │ &lt;───────────── │ AudioPolicy  │ &lt;───────────── │ WiredAccessory │
+│ (vendor)    │                │  (system)    │                │ Manager        │
+└─────────────┘                └──────────────┘                └────────────────┘
+       │
+       │ ⑦功放/DAC
+       ▼
+   耳机出声
+</code></pre></div>
+
+<h3 id="31-mtk-accdet">3.1 第一层：MTK ACCDET 驱动检测</h3>
+<p>MTK 平台的耳机检测由 <strong>ACCDET</strong>（Accessory Detect）完成。</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>getprop<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>accdet
+adb<span class="w"> </span>shell<span class="w"> </span>ls<span class="w"> </span>/sys/bus/platform/drivers/Accdet_Driver/
+</code></pre></div>
+
+<p>本机节点：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>state</code></td>
+<td>当前检测状态：<strong>0 = 无，2 = 已插入</strong>（实测值）</td>
+</tr>
+<tr>
+<td><code>dump_reg</code></td>
+<td>寄存器快照，深度调试用</td>
+</tr>
+<tr>
+<td><code>set_headset_mode</code></td>
+<td>手动设置耳机模式（4 段/3 段）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>插上耳机后读取：</strong></p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>root
+adb<span class="w"> </span>shell<span class="w"> </span>cat<span class="w"> </span>/sys/bus/platform/drivers/Accdet_Driver/state
+<span class="c1"># 输出: 2</span>
+</code></pre></div>
+
+<blockquote>
+<p>✅ <strong>第一层通过</strong>：ACCDET 驱动正确检测到了插入。</p>
+</blockquote>
+<p>同时确认输入设备声明了正确的 switch 位：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>getevent<span class="w"> </span>-pl<span class="w"> </span>/dev/input/event0
+</code></pre></div>
+
+<p>输出：</p>
+<div class="hl"><pre><span></span><code>add device 1: /dev/input/event0
+  name:     "ACCDET"
+  events:
+    KEY (0001): KEY_VOLUMEDOWN  KEY_VOLUMEUP  KEY_PLAYPAUSE  KEY_VOICECOMMAND
+    SW  (0005): SW_HEADPHONE_INSERT*  SW_MICROPHONE_INSERT  SW_LINEOUT_INSERT  SW_JACK_PHYSICAL_INS
+</code></pre></div>
+
+<blockquote>
+<p>✅ 驱动声明了 <code>SW_HEADPHONE_INSERT</code>（带 <code>*</code> 表示当前置位）。
+<strong>注意这个 <code>*</code> 是误导</strong>——它表示"该能力被支持"，不代表每次都能上报正确的值。第三层会看到问题。</p>
+</blockquote>
+<h3 id="32-config">3.2 第二层：内核 config</h3>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>zcat<span class="w"> </span>/proc/config.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"CONFIG_SWITCH|CONFIG_MTK_ACCDET"</span>
+</code></pre></div>
+
+<p>本机结果：</p>
+<div class="hl"><pre><span></span><code># CONFIG_SWITCH is not set     ← 通用 switch 子系统没编进去
+CONFIG_MTK_ACCDET=y            ← 但 MTK 自己的 ACCDET 在
+</code></pre></div>
+
+<p>结论：<strong>不影响</strong>。ACCDET 走自己的一套 input 上报路径，不依赖 <code>CONFIG_SWITCH</code>。</p>
+<h3 id="33-inputreader-switchvalues">3.3 第三层：InputReader 上报的 SwitchValues（← 问题在这里）</h3>
+<p>这是整个排查的核心命门。InputReader 汇总所有 switch 位成一个整数值，广播给上层。</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>input<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"SwitchValues"</span>
+</code></pre></div>
+
+<p><strong>耳机插入状态下输出：</strong></p>
+<div class="hl"><pre><span></span><code>SwitchValues: 4
+</code></pre></div>
+
+<p>对比 Android 的 switch 位定义（<code>frameworks/native/include/input/Input.h</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>位</th>
+<th>值</th>
+<th>常量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bit0</td>
+<td>1</td>
+<td><code>SW_HEADPHONE_INSERT</code> ← <strong>耳机插入，必须置位</strong></td>
+</tr>
+<tr>
+<td>bit1</td>
+<td>2</td>
+<td><code>SW_MICROPHONE_INSERT</code> ← 带麦耳机（4 段）</td>
+</tr>
+<tr>
+<td>bit2</td>
+<td>4</td>
+<td><code>SW_LINEOUT_INSERT</code></td>
+</tr>
+<tr>
+<td>bit3</td>
+<td>8</td>
+<td><code>SW_JACK_PHYSICAL_INSERT</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>❌ <strong><code>SwitchValues = 4</code> 说明只有 <code>SW_LINEOUT_INSERT</code> 置位了，<code>SW_HEADPHONE_INSERT</code>（bit0 = 1）从未置位！</strong></p>
+<p>这就是根因所在：<strong>底层检测到了插入（state=2），但上报给上层时用错了 switch 位。</strong></p>
+</blockquote>
+<p>补充证据——<code>WiredAccessoryManager</code> 从未被触发：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A5<span class="w"> </span><span class="s2">"wired/A2DP/hearing aid device connection"</span>
+</code></pre></div>
+
+<p>输出里只有蓝牙 A2DP 的连接记录，<strong>没有任何有线设备的连接事件</strong>。正常系统在插耳机时会记录类似：</p>
+<div class="hl"><pre><span></span><code>setWiredDeviceConnectionState( type:8 state:DEVICE_STATE_AVAILABLE ...)
+</code></pre></div>
+
+<blockquote>
+<p>❌ 一条都没有 → 确认上层完全不知道耳机插入了。</p>
+</blockquote>
+<h3 id="34-audiopolicy">3.4 第四层：AudioPolicy 输出设备列表</h3>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"Devices:"</span>
+</code></pre></div>
+
+<p>问题状态下只有 <code>speaker</code>，没有 <code>headphone</code>。确认：AudioPolicy 认为只有扬声器可用。</p>
+<hr />
+<h2 id="根因结论">4. 根因结论</h2>
+<p><strong>一句话：ACCDET 驱动检测到了耳机插入，但上报的 switch 位是 <code>SW_LINEOUT_INSERT</code>(4) 而不是 <code>SW_HEADPHONE_INSERT</code>(1)，导致 <code>WiredAccessoryManager</code> 不认为有耳机插入，因此 AudioPolicy 不切换音频路由，音频继续走扬声器。</strong></p>
+<p>完整因果链：</p>
+<div class="hl"><pre><span></span><code>ACCDET 检测到插入 (state=2)   ✅
+        ↓
+InputReader 上报 SwitchValues=4  ❌ 应该是 1（或 5）
+        ↓
+WiredAccessoryManager 只认 SW_HEADPHONE_INSERT(bit0)
+        ↓ 不触发
+AudioService.setWiredDeviceConnectionState 从未被调用
+        ↓
+AudioPolicy 的可用设备列表里没有 WIRED_HEADPHONE
+        ↓
+Audio HAL 不关闭扬声器、不打开耳机通路
+        ↓
+现象：耳机无声 / 或耳机和扬声器同时出声（取决于 mixer 状态）
+</code></pre></div>
+
+<p><strong>为什么修不了 kernel</strong>：ACCDET 是编译进 vendor 的驱动（<code>CONFIG_MTK_ACCDET=y</code>），没有源码、没有 vendor 编译环境，改不了上报逻辑。</p>
+<p><strong>为什么修不了 system 层的 WiredAccessoryManager</strong>：GSI 的 system 是只读 dm-verity 分区，且改 framework 需要重新编译整个 system image。</p>
+<p>→ <strong>只能在应用层"补发"这个缺失的事件。</strong></p>
+<hr />
+<h2 id="正常系统是怎么做的原理">5. 正常系统是怎么做的（原理）</h2>
+<p>理解这一点，才能理解为什么我们的修复方案要这么设计。</p>
+<h3 id="51">5.1 正常流程</h3>
+<div class="hl"><pre><span></span><code>InputReader (native)
+  └─ 检测到 switch 变化，打包成 Event
+       └─ 通过 InputManagerService 广播
+            └─ WiredAccessoryManager（system_server，Java）
+                 └─ 识别 SW_HEADPHONE_INSERT
+                      └─ 调用 AudioService.setWiredDeviceConnectionState(
+                             AudioDeviceAttributes(ROLE_OUTPUT, TYPE_WIRED_HEADPHONES, ""),
+                             DEVICE_STATE_AVAILABLE,
+                             "WiredAccessoryManager")
+                           └─ AudioPolicyManager 切设备
+                                └─ Audio HAL 关 speaker、开 headphone
+</code></pre></div>
+
+<h3 id="52-setwireddeviceconnectionstate">5.2 我们要补的就是 <code>setWiredDeviceConnectionState</code> 这一调</h3>
+<p>关键 API（<code>IAudioService</code>）：</p>
+<div class="hl"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">setWiredDeviceConnectionState</span><span class="p">(</span><span class="n">AudioDeviceAttributes</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">caller</span><span class="p">);</span>
+</code></pre></div>
+
+<p>在 AOSP Android 11 上，这个 binder 事务号是 <strong>64</strong>，参数布局是：</p>
+<div class="hl"><pre><span></span><code>writeInterfaceToken("android.media.IAudioService")
+writeTypedObject(AudioDeviceAttributes, 0)    // role(2=OUTPUT), type(4=TYPE_WIRED_HEADPHONES), address("")
+writeInt(state)                                // 1 = AVAILABLE, 0 = UNAVAILABLE
+writeString(caller)                            // 调用者标识，随便写
+</code></pre></div>
+
+<hr />
+<h2 id="修复方案演进为什么最后选了APK">6. 修复方案演进：为什么最后选了 APK</h2>
+<p>走过的弯路值得记录，能帮别人少花时间。</p>
+<h3 id="acmd-audio">方案 A：<code>cmd audio</code> 命令行</h3>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>cmd<span class="w"> </span>audio
+</code></pre></div>
+
+<p>→ <code>No shell command implementation</code>。Android 11 的音频服务没有 shell command 实现。</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>cmd<span class="w"> </span>media.audio_policy
+</code></pre></div>
+
+<p>→ 只有 <code>uid-state</code> 子命令，没有设置设备连接状态的能力。</p>
+<p><strong>❌ 死在第一步。</strong></p>
+<h3 id="bapp_process-java">方案 B：<code>app_process</code> 跑 Java（免安装）</h3>
+<p>思路：用 <code>app_process</code> 直接跑一段 Java，反射调 <code>AudioManager</code>。</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>app_process<span class="w"> </span>-Djava.class.path<span class="o">=</span>/data/local/tmp/fix.jar<span class="w"> </span>/system/bin<span class="w"> </span>com.abnen.WireFix
+</code></pre></div>
+
+<p>→ <strong><code>Aborted</code></strong>。backtrace：</p>
+<div class="hl"><pre><span></span><code>jniRegisterNativeMethods → FindClass → AssertNoPendingException → abort
+</code></pre></div>
+
+<p>GSI 上的 <code>app_process</code> 与 <code>RuntimeInit</code> 不匹配，一跑就崩。</p>
+<p>换 <code>dalvikvm</code>：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>dalvikvm<span class="w"> </span>-cp<span class="w"> </span>/data/local/tmp/fix.jar<span class="w"> </span>com.abnen.WireFix
+</code></pre></div>
+
+<p>→ Java 能跑，但 <code>ServiceManager.&lt;clinit&gt;</code> 报：</p>
+<div class="hl"><pre><span></span><code>UnsatisfiedLinkError: SystemProperties.native_get_int
+</code></pre></div>
+
+<p><strong>❌ 死于 GSI 的 app_process 环境问题。</strong></p>
+<h3 id="c-app">方案 C：普通 App 反射调用</h3>
+<p>装一个普通 App，反射调 <code>AudioManager.setWiredDeviceConnectionState(...)</code>。</p>
+<p>结果：</p>
+<div class="hl"><pre><span></span><code>java.lang.NoSuchMethodException:
+  android.media.AudioManager.setWiredDeviceConnectionState[...]
+</code></pre></div>
+
+<p>这是 <strong>Android 的 Hidden API 限制</strong>——非 SDK 接口被 <code>getMethod</code> 直接屏蔽（不是抛异常，是"假装不存在"）。</p>
+<p>想用标准绕法：</p>
+<div class="hl"><pre><span></span><code><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">vmr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Class</span><span class="p">.</span><span class="na">forName</span><span class="p">(</span><span class="s">"dalvik.system.VMRuntime"</span><span class="p">);</span>
+<span class="n">Method</span><span class="w"> </span><span class="n">setEx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vmr</span><span class="p">.</span><span class="na">getDeclaredMethod</span><span class="p">(</span><span class="s">"setHiddenApiExemptions"</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">[]</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="n">setEx</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span><span class="n">vmr</span><span class="p">.</span><span class="na">getMethod</span><span class="p">(</span><span class="s">"getRuntime"</span><span class="p">).</span><span class="na">invoke</span><span class="p">(</span><span class="kc">null</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">Object</span><span class="p">)</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="o">[]</span><span class="p">{</span><span class="s">"L"</span><span class="p">});</span>
+</code></pre></div>
+
+<p>→ <code>NoSuchMethodException: VMRuntime.setHiddenApiExemptions</code>
+<strong>Phh 的 GSI 把这个方法删了。</strong></p>
+<p><strong>❌ Hidden API 路线彻底堵死。</strong></p>
+<h3 id="dparcel-ibinder-priv-app">方案 D（最终）：Parcel + IBinder 直连 + priv-app 提权</h3>
+<p><strong>两个关键突破：</strong></p>
+<p><strong>突破 1：绕开反射，直接走 binder。</strong>
+<code>Parcel</code>、<code>IBinder.transact</code> 都是<strong>公开 SDK API</strong>，不受 Hidden API 限制。</p>
+<div class="hl"><pre><span></span><code><span class="n">Parcel</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Parcel</span><span class="p">.</span><span class="na">obtain</span><span class="p">();</span>
+<span class="n">Parcel</span><span class="w"> </span><span class="n">reply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Parcel</span><span class="p">.</span><span class="na">obtain</span><span class="p">();</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeInterfaceToken</span><span class="p">(</span><span class="s">"android.media.IAudioService"</span><span class="p">);</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeInt</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span><span class="w">           </span><span class="c1">// device</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeInt</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">           </span><span class="c1">// state</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeString</span><span class="p">(</span><span class="s">""</span><span class="p">);</span><span class="w">       </span><span class="c1">// address</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeString</span><span class="p">(</span><span class="s">"WireFix"</span><span class="p">);</span><span class="w"> </span><span class="c1">// caller</span>
+<span class="n">b</span><span class="p">.</span><span class="na">transact</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">reply</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="n">reply</span><span class="p">.</span><span class="na">readException</span><span class="p">();</span>
+</code></pre></div>
+
+<p><code>ServiceManager.getService("audio")</code> 是 greylist（灰色名单）——可以调，只打警告不拦截。如果被拦，还有 meta-reflection 兜底：</p>
+<div class="hl"><pre><span></span><code><span class="n">Method</span><span class="w"> </span><span class="n">meta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Class</span><span class="p">.</span><span class="na">class</span><span class="p">.</span><span class="na">getDeclaredMethod</span><span class="p">(</span><span class="s">"getDeclaredMethod"</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">Class</span><span class="o">[]</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="n">gs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Method</span><span class="p">)</span><span class="w"> </span><span class="n">meta</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span><span class="n">ServiceManager</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="s">"getService"</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Class</span><span class="o">[]</span><span class="p">{</span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">});</span>
+</code></pre></div>
+
+<p><strong>突破 2：<code>MODIFY_AUDIO_ROUTING</code> 需要特权。</strong>
+即使 binder 通了，服务端还会检查权限：</p>
+<div class="hl"><pre><span></span><code>SecurityException: Missing MODIFY_AUDIO_ROUTING permission
+</code></pre></div>
+
+<p>这个权限的 protectionLevel 是 <code>signature|privileged</code>——只有系统签名应用或 <code>/system/priv-app</code> 下的应用能拿。</p>
+<p>→ 用 <strong>Magisk systemless 模块</strong>把 APK 挂载为 priv-app（不改 system 分区、可随时删除回滚）。</p>
+<p><strong>✅ 方案 D 成功。</strong></p>
+<hr />
+<h2 id="完整实施步骤">7. 完整实施步骤</h2>
+<h3 id="_2">前置条件</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root</td>
+<td>Magisk 20+ （实测 28.0）</td>
+</tr>
+<tr>
+<td>系统</td>
+<td>Android 10+ （实测 11）</td>
+</tr>
+<tr>
+<td>adb</td>
+<td>已连接、可 <code>adb root</code></td>
+</tr>
+<tr>
+<td>设备</td>
+<td>MTK 平台（ACCDET 路径依赖 MTK）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>非 MTK 设备注意</strong>：<code>/sys/bus/platform/drivers/Accdet_Driver/state</code> 是 MTK 专有路径。
+高通/其他平台需要换检测源（见文档末尾"移植到其他平台"）。</p>
+</blockquote>
+<h3 id="step-1">Step 1 — 环境准备</h3>
+<div class="hl"><pre><span></span><code><span class="c1"># 确认 root</span>
+adb<span class="w"> </span>root
+adb<span class="w"> </span>shell<span class="w"> </span>id<span class="w">        </span><span class="c1"># 应显示 uid=0(root)</span>
+
+<span class="c1"># 确认 Magisk</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"magisk -v"</span>
+<span class="c1"># 28.0:MAGISK:R</span>
+
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"ls /data/adb/modules"</span>
+<span class="c1"># zygisk_lsposed  ← 已有模块说明 Magisk 工作正常</span>
+</code></pre></div>
+
+<h3 id="step-2-apk-priv-app">Step 2 — 部署 APK 到 priv-app</h3>
+<p><strong>方式一：一键脚本（推荐）</strong></p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>push<span class="w"> </span>WireFix-kit<span class="w"> </span>/data/local/tmp/
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"sh /data/local/tmp/WireFix-kit/scripts/install.sh"</span>
+adb<span class="w"> </span>reboot
+</code></pre></div>
+
+<p>Windows 用户直接双击 <code>scripts/install-windows.bat</code>。</p>
+<p><strong>方式二：手动逐步（理解流程用）</strong></p>
+<div class="hl"><pre><span></span><code><span class="c1"># 1) 推到临时目录</span>
+adb<span class="w"> </span>push<span class="w"> </span>WireFix.apk<span class="w"> </span>/data/local/tmp/WireFix.apk
+
+<span class="c1"># 2) 建模块目录</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"mkdir -p /data/adb/modules/wirefix/system/priv-app/WireFix"</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"mkdir -p /data/adb/modules/wirefix/system/etc/permissions"</span>
+
+<span class="c1"># 3) 放 APK</span>
+adb<span class="w"> </span>root
+adb<span class="w"> </span>push<span class="w"> </span>WireFix.apk<span class="w"> </span>/data/adb/modules/wirefix/system/priv-app/WireFix/WireFix.apk
+adb<span class="w"> </span>shell<span class="w"> </span>chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>/data/adb/modules/wirefix/system/priv-app/WireFix/WireFix.apk
+
+<span class="c1"># 4) 修 SELinux 标签（关键！不修 PMS 读不到）</span>
+adb<span class="w"> </span>shell<span class="w"> </span>chcon<span class="w"> </span>u:object_r:system_file:s0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/data/adb/modules/wirefix/system/priv-app/WireFix/WireFix.apk
+
+<span class="c1"># 5) 权限白名单</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s1">'cat &gt; /data/adb/modules/wirefix/system/etc/permissions/privapp-permissions-wirefix.xml &lt;&lt; "EOF"</span>
+<span class="s1">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="s1">&lt;permissions&gt;</span>
+<span class="s1">    &lt;privapp-permissions package="com.abnen.wirefix"&gt;</span>
+<span class="s1">        &lt;permission name="android.permission.MODIFY_AUDIO_ROUTING" /&gt;</span>
+<span class="s1">        &lt;permission name="android.permission.MODIFY_AUDIO_SETTINGS" /&gt;</span>
+<span class="s1">        &lt;permission name="android.permission.FOREGROUND_SERVICE" /&gt;</span>
+<span class="s1">    &lt;/privapp-permissions&gt;</span>
+<span class="s1">&lt;/permissions&gt;</span>
+<span class="s1">EOF'</span>
+adb<span class="w"> </span>shell<span class="w"> </span>chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>/data/adb/modules/wirefix/system/etc/permissions/privapp-permissions-wirefix.xml
+adb<span class="w"> </span>shell<span class="w"> </span>chcon<span class="w"> </span>u:object_r:system_file:s0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/data/adb/modules/wirefix/system/etc/permissions/privapp-permissions-wirefix.xml
+
+<span class="c1"># 6) module.prop</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s1">'cat &gt; /data/adb/modules/wirefix/module.prop &lt;&lt; "EOF"</span>
+<span class="s1">id=wirefix</span>
+<span class="s1">name=WireFix 耳机路由修复</span>
+<span class="s1">version=1.0</span>
+<span class="s1">versionCode=1</span>
+<span class="s1">author=zhuanjia</span>
+<span class="s1">description=修复 3.5mm 有线耳机无声</span>
+<span class="s1">EOF'</span>
+
+<span class="c1"># 7) 卸载可能冲突的用户层应用</span>
+adb<span class="w"> </span>shell<span class="w"> </span>pm<span class="w"> </span>uninstall<span class="w"> </span>com.abnen.wirefix
+
+<span class="c1"># 8) 重启</span>
+adb<span class="w"> </span>reboot
+</code></pre></div>
+
+<h3 id="step-3-apk">Step 3 — 验证 APK 已成为特权应用</h3>
+<p>重启后等 1~2 分钟（首次开机要扫描新包）：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>pm<span class="w"> </span>path<span class="w"> </span>com.abnen.wirefix
+<span class="c1"># package:/system/priv-app/WireFix/WireFix.apk     ← 必须是这个路径</span>
+
+adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>package<span class="w"> </span>com.abnen.wirefix<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>MODIFY_AUDIO_ROUTING
+<span class="c1"># android.permission.MODIFY_AUDIO_ROUTING</span>
+<span class="c1"># android.permission.MODIFY_AUDIO_ROUTING: granted=true     ← 必须是 true</span>
+</code></pre></div>
+
+<blockquote>
+<p>如果 <code>pm path</code> 报"找不到包"，看 §8 坑 1、坑 2。</p>
+</blockquote>
+<h3 id="step-4">Step 4 — 部署自动守护脚本</h3>
+<div class="hl"><pre><span></span><code><span class="c1"># 复制脚本</span>
+adb<span class="w"> </span>root
+adb<span class="w"> </span>push<span class="w"> </span>service.sh<span class="w"> </span>/data/adb/modules/wirefix/service.sh
+adb<span class="w"> </span>shell<span class="w"> </span>chmod<span class="w"> </span><span class="m">755</span><span class="w"> </span>/data/adb/modules/wirefix/service.sh
+adb<span class="w"> </span>shell<span class="w"> </span>chcon<span class="w"> </span>u:object_r:system_file:s0<span class="w"> </span>/data/adb/modules/wirefix/service.sh
+
+adb<span class="w"> </span>reboot
+</code></pre></div>
+
+<p>脚本内容（<code>module/service.sh</code>）：</p>
+<div class="hl"><pre><span></span><code><span class="ch">#!/system/bin/sh</span>
+<span class="c1"># 轮询 ACCDET 状态，变化时拉起 GuardService</span>
+<span class="nv">SLEEP</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">last</span><span class="o">=</span><span class="s2">""</span>
+<span class="k">while</span><span class="w"> </span>true<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">s</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/sys/bus/platform/drivers/Accdet_Driver/state<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="k">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$s</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$s</span><span class="s2">"</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$last</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span>am<span class="w"> </span>start-foreground-service<span class="w"> </span>-n<span class="w"> </span>com.abnen.wirefix/.GuardService<span class="w"> </span><span class="se">\</span>
+<span class="w">               </span>--ei<span class="w"> </span>state<span class="w"> </span><span class="s2">"</span><span class="nv">$s</span><span class="s2">"</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nv">last</span><span class="o">=</span><span class="nv">$s</span><span class="w">          </span><span class="c1"># ← 只有 am 成功才更新，否则下轮重试</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span>sleep<span class="w"> </span><span class="nv">$SLEEP</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<p><strong>为什么用 <code>am start-foreground-service</code> 而不是广播？</strong>
+→ 见 §8 坑 4（Android 11 后台广播限制）。</p>
+<p><strong>为什么 <code>last</code> 要在 <code>am</code> 成功后才更新？</strong>
+→ 见 §8 坑 5（开机时 AMS 未就绪会永久漏发）。</p>
+<h3 id="step-5">Step 5 — 验证修复生效</h3>
+<div class="hl"><pre><span></span><code><span class="c1"># 1) 确认耳机已插入</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"cat /sys/bus/platform/drivers/Accdet_Driver/state"</span>
+<span class="c1"># 2</span>
+
+<span class="c1"># 2) 确认 AudioService 收到了插入事件</span>
+adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>setWiredDeviceConnectionState
+<span class="c1"># 10-20 17:21:32:131 setWiredDeviceConnectionState(</span>
+<span class="c1">#     type:8 state:DEVICE_STATE_AVAILABLE addr: name:WireFix) from null</span>
+<span class="c1">#                                          ↑ 这一行出现即为成功</span>
+
+<span class="c1"># 3) 确认 AudioPolicy 认出耳机设备</span>
+adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"Devices:"</span>
+<span class="c1"># Devices: headphone            ← 出现 headphone</span>
+
+<span class="c1"># 4) 确认 APK 一直在守护</span>
+adb<span class="w"> </span>shell<span class="w"> </span>ps<span class="w"> </span>-A<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>abnen
+</code></pre></div>
+
+<p><strong>然后做物理测试：</strong></p>
+<table>
+<thead>
+<tr>
+<th>测试</th>
+<th>期望结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>插耳机 + 放音乐</td>
+<td>耳机响，<strong>扬声器静音</strong></td>
+</tr>
+<tr>
+<td>拔耳机</td>
+<td>扬声器自动恢复</td>
+</tr>
+<tr>
+<td>再插回去</td>
+<td>2 秒内自动切回耳机</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-6-app">Step 6 — 可选：手动控制 App</h3>
+<p>打开平板上的 <strong>WireFix</strong> 应用，有 5 个按钮：</p>
+<table>
+<thead>
+<tr>
+<th>按钮</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 通知插入</td>
+<td>手动补发 AVAILABLE 事件</td>
+</tr>
+<tr>
+<td>② 通知拔出</td>
+<td>手动补发 UNAVAILABLE 事件</td>
+</tr>
+<tr>
+<td>③ 启动自动守护</td>
+<td>启动前台服务（不依赖 root 脚本的兜底路径）</td>
+</tr>
+<tr>
+<td>④ 停止守护 + 还原扬声器</td>
+<td>恢复默认</td>
+</tr>
+<tr>
+<td>⑤ 打印当前状态</td>
+<td>显示 ACCDET / switch / 输出设备列表</td>
+</tr>
+</tbody>
+</table>
+<p>日志区会实时显示 binder 调用结果，方便排错。</p>
+<hr />
+<h2 id="踩过的坑重要别人一定会遇到">8. 踩过的坑（重要，别人一定会遇到）</h2>
+<p>这一节是整份文档最有价值的部分。每个坑我都实际踩过。</p>
+<h3 id="1magisk-update">坑 1：Magisk 模块目录里的 <code>update</code> 文件会让模块<strong>完全不挂载</strong></h3>
+<p>我在创建模块时随手 <code>touch $MOD/update</code>，结果重启后 <code>/system/priv-app/WireFix</code> 是空的。</p>
+<p><strong>Magisk 的语义</strong>：<code>/data/adb/modules/&lt;id&gt;/update</code> 存在时，表示"模块待更新"，Magisk <strong>跳过挂载</strong>。这是给 Magisk Manager 用的标记，手动创建模块时<strong>绝对不能有</strong>。</p>
+<div class="hl"><pre><span></span><code>rm<span class="w"> </span>-f<span class="w"> </span>/data/adb/modules/wirefix/update
+</code></pre></div>
+
+<h3 id="2adb-push-selinux-adb_data_filesystem_server">坑 2：<code>adb push</code> 到模块目录的文件 SELinux 标签是 <code>adb_data_file</code>，<code>system_server</code> 读不到</h3>
+<p>现象：</p>
+<div class="hl"><pre><span></span><code>avc: denied { getattr } for path="/system/priv-app/WireFix/WireFix.apk"
+     scontext=u:r:system_server:s0 tcontext=u:object_r:adb_data_file:s0
+avc: denied { read } for name="WireFix.apk" ... tclass=file
+</code></pre></div>
+
+<p>PMS（PackageManagerService）扫描时被 SELinux 拒绝，包直接"消失"——<code>pm path</code> 返回空，<code>am start</code> 报 <code>Activity class does not exist</code>。</p>
+<p><strong>必须手动改标签：</strong></p>
+<div class="hl"><pre><span></span><code>chcon<span class="w"> </span>u:object_r:system_file:s0<span class="w"> </span>/data/adb/modules/wirefix/system/priv-app/WireFix/WireFix.apk
+chcon<span class="w"> </span>u:object_r:system_file:s0<span class="w"> </span>/data/adb/modules/wirefix/system/etc/permissions/privapp-permissions-wirefix.xml
+chcon<span class="w"> </span>u:object_r:system_file:s0<span class="w"> </span>/data/adb/modules/wirefix/service.sh
+</code></pre></div>
+
+<blockquote>
+<p>验证：<code>ls -Z</code> 看标签，应为 <code>u:object_r:system_file:s0</code>。</p>
+</blockquote>
+<h3 id="3servicesh-shell-magiskd">坑 3：<code>service.sh</code> 用子 shell <code>&amp;</code> 会被 magiskd 杀掉</h3>
+<p>错误写法：</p>
+<div class="hl"><pre><span></span><code><span class="o">(</span>
+<span class="k">while</span><span class="w"> </span>true<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>...<span class="w"> </span><span class="k">done</span>
+<span class="o">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w">          </span><span class="c1"># ← 子 shell 后台，service.sh 退出后进程组被清理</span>
+</code></pre></div>
+
+<p>现象：Magisk 日志显示 <code>wirefix: exec [service.sh]</code> 执行了，但 <code>ps</code> 里找不到循环进程。</p>
+<p><strong>正确写法</strong>：直接把循环写在顶层，<code>service.sh</code> 本身常驻。</p>
+<div class="hl"><pre><span></span><code><span class="nv">SLEEP</span><span class="o">=</span><span class="m">2</span>
+<span class="k">while</span><span class="w"> </span>true<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>...<span class="w"> </span>sleep<span class="w"> </span><span class="nv">$SLEEP</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</code></pre></div>
+
+<h3 id="4android-11-manifest-receiver">坑 4：Android 11 禁止向 manifest receiver 发送后台广播</h3>
+<p>我先用 <code>am broadcast -a com.abnen.wirefix.ACCDET_STATE --ei state 2</code>，结果：</p>
+<div class="hl"><pre><span></span><code>W BroadcastQueue: Background execution not allowed:
+   receiving Intent { act=com.abnen.wirefix.ACCDET_STATE ... } to com.abnen.wirefix/.StateReceiver
+</code></pre></div>
+
+<p>Android 8 起对隐式广播有后台限制，即使接收方是自家 manifest 注册的 receiver 也会被拦。</p>
+<p><strong>解法</strong>：改用 <code>am start-foreground-service</code>。<strong>root 身份调用时不受后台启动限制</strong>，而且前台服务本身就允许长期运行。</p>
+<div class="hl"><pre><span></span><code>am<span class="w"> </span>start-foreground-service<span class="w"> </span>-n<span class="w"> </span>com.abnen.wirefix/.GuardService<span class="w"> </span>--ei<span class="w"> </span>state<span class="w"> </span><span class="s2">"</span><span class="nv">$s</span><span class="s2">"</span>
+</code></pre></div>
+
+<h3 id="5-ams-am">坑 5：开机时 AMS 还没起来，<code>am</code> 静默失败，状态却被记住了</h3>
+<p>第一版脚本：</p>
+<div class="hl"><pre><span></span><code><span class="nv">s</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>.../state<span class="k">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$s</span><span class="s2">"</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$last</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">last</span><span class="o">=</span><span class="nv">$s</span><span class="w">                                 </span><span class="c1"># ← 先记住</span>
+<span class="w">    </span>am<span class="w"> </span>start-foreground-service<span class="w"> </span>...<span class="w">         </span><span class="c1"># ← 后调用，开机时这里失败</span>
+<span class="k">fi</span>
+</code></pre></div>
+
+<p>开机时 <code>service.sh</code> 在 <code>boot-complete</code> 之前就跑起来了，此时 ActivityManager 还没准备好，<code>am</code> 返回非 0。但 <code>last</code> 已经被设成 2，之后<strong>永远不会再补发</strong>。</p>
+<p>现象：手动跑脚本有效，开机自动跑无效。</p>
+<p><strong>解法</strong>：<code>am</code> 成功才更新 <code>last</code>。</p>
+<div class="hl"><pre><span></span><code><span class="k">if</span><span class="w"> </span>am<span class="w"> </span>start-foreground-service<span class="w"> </span>...<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">last</span><span class="o">=</span><span class="nv">$s</span>
+<span class="k">fi</span>
+</code></pre></div>
+
+<h3 id="6-64-parcel-aosp">坑 6：事务号 64 是对的，但 Parcel 布局不是 AOSP 文档写的那样</h3>
+<p>AOSP Android 11 的 <code>IAudioService.setWiredDeviceConnectionState</code> 签名是：</p>
+<div class="hl"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">setWiredDeviceConnectionState</span><span class="p">(</span><span class="n">AudioDeviceAttributes</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">caller</span><span class="p">);</span>
+<span class="c1">// 事务号 64</span>
+</code></pre></div>
+
+<p>我按这个布局写 Parcel，结果服务端报：</p>
+<div class="hl"><pre><span></span><code>IllegalArgumentException: Invalid state 4
+</code></pre></div>
+
+<p><strong>原因</strong>：这是 <strong>AOSP 较新分支</strong>的签名。本机 GSI（Android 11，但 framework 来自较早的 Phh 分支）实际用的是<strong>旧版 4 参数签名</strong>：</p>
+<div class="hl"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">setWiredDeviceConnectionState</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">caller</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>怎么查真实签名</strong>——从设备拉自己的 framework.jar 反编译：</p>
+<div class="hl"><pre><span></span><code><span class="c1"># 1) 拉 framework.jar</span>
+<span class="nv">MSYS_NO_PATHCONV</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>adb<span class="w"> </span>pull<span class="w"> </span>/system/framework/framework.jar
+
+<span class="c1"># 2) 解出 dex</span>
+jar<span class="w"> </span>xf<span class="w"> </span>framework.jar<span class="w">          </span><span class="c1"># 得到 classes.dex ~ classes4.dex</span>
+
+<span class="c1"># 3) 找含目标类/方法的 dex</span>
+<span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>classes*.dex<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">: </span><span class="k">$(</span>dexdump<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-c<span class="w"> </span>setWiredDeviceConnectionState<span class="k">)</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c1"># 4) 导出反汇编，查方法签名</span>
+dexdump<span class="w"> </span>classes2.dex<span class="w"> </span>&gt;<span class="w"> </span>c2.txt
+grep<span class="w"> </span>-A3<span class="w"> </span><span class="s2">"name.*setWiredDeviceConnectionState"</span><span class="w"> </span>c2.txt<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-20
+
+<span class="c1"># 输出：</span>
+<span class="c1">#   type: '(IILjava/lang/String;Ljava/lang/String;)V'    ← 旧版 4 参数</span>
+<span class="c1">#   type: '(Z)V'                                          ← 上面这个是 AudioManager 的另一个方法</span>
+
+<span class="c1"># 5) 同时确认事务号</span>
+grep<span class="w"> </span>-A5<span class="w"> </span><span class="s2">"TRANSACTION_setWiredDeviceConnectionState"</span><span class="w"> </span>c2.txt
+<span class="c1">#   value: 64                                            ← 事务号确认无误</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>教训：任何跨 binder 的 Parcel 调用，都要先 dump 目标设备的 framework 确认签名，不要照抄 AOSP 文档。</strong> GSI/定制 ROM 的签名经常和 AOSP 主线不一致。</p>
+</blockquote>
+<p>改正后的 Parcel 布局：</p>
+<div class="hl"><pre><span></span><code><span class="n">data</span><span class="p">.</span><span class="na">writeInterfaceToken</span><span class="p">(</span><span class="s">"android.media.IAudioService"</span><span class="p">);</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeInt</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span><span class="w">            </span><span class="c1">// device = DEVICE_OUT_WIRED_HEADPHONE（不是 TYPE_WIRED_HEADPHONES=4!）</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeInt</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">            </span><span class="c1">// state = 1 (AVAILABLE) / 0 (UNAVAILABLE)</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeString</span><span class="p">(</span><span class="s">""</span><span class="p">);</span><span class="w">        </span><span class="c1">// address</span>
+<span class="n">data</span><span class="p">.</span><span class="na">writeString</span><span class="p">(</span><span class="s">"WireFix"</span><span class="p">);</span><span class="w"> </span><span class="c1">// caller</span>
+</code></pre></div>
+
+<p><strong>注意 <code>8</code> 和 <code>4</code> 的坑</strong>：
+- <code>AudioSystem.DEVICE_OUT_WIRED_HEADPHONE = 8</code> ← <strong>binder 这里要这个</strong>
+- <code>AudioDeviceInfo.TYPE_WIRED_HEADPHONES = 4</code> ← 构造 <code>AudioDeviceAttributes</code> 时才用这个</p>
+<p>我用错过一次，导致 AudioDeviceAttributes 打印成 <code>bt_a2dp</code>（type=8 被当成蓝牙）。</p>
+<h3 id="7app_process-gsi">坑 7（观察）：<code>app_process</code> 在 GSI 上不可用</h3>
+<p>想在免安装的情况下跑 Java（<code>app_process</code> / <code>dalvikvm</code>），在 Phh GSI 上都会失败：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app_process -Djava.class.path=x.jar /system/bin Main</code></td>
+<td><code>Aborted</code>，jniRegisterNativeMethods 崩</td>
+</tr>
+<tr>
+<td><code>dalvikvm -cp x.jar Main</code></td>
+<td><code>UnsatisfiedLinkError: SystemProperties.native_get_int</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：GSI 上不要指望 app_process，直接做 APK 更省时间。</p>
+<hr />
+<h2 id="验证与回归测试">9. 验证与回归测试</h2>
+<h3 id="91">9.1 自动化自检</h3>
+<p>Windows：双击 <code>scripts/verify.bat</code>
+手动：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>pm<span class="w"> </span>path<span class="w"> </span>com.abnen.wirefix<span class="w">                        </span><span class="c1"># → /system/priv-app/WireFix/WireFix.apk</span>
+adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>package<span class="w"> </span>com.abnen.wirefix<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>MODIFY_AUDIO_ROUTING<span class="w">   </span><span class="c1"># → granted=true</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"cat /sys/bus/platform/drivers/Accdet_Driver/state"</span><span class="w">       </span><span class="c1"># → 2（插入时）</span>
+adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>setWiredDeviceConnectionState<span class="w">              </span><span class="c1"># → 应有记录</span>
+adb<span class="w"> </span>shell<span class="w"> </span>dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"Devices:"</span><span class="w">                                 </span><span class="c1"># → 应含 headphone</span>
+</code></pre></div>
+
+<h3 id="92">9.2 物理回归测试清单</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>操作</th>
+<th>期望</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>空载（无耳机）</td>
+<td>扬声器正常出声</td>
+</tr>
+<tr>
+<td>2</td>
+<td>插入耳机</td>
+<td>2 秒内扬声器静音，耳机出声</td>
+</tr>
+<tr>
+<td>3</td>
+<td>耳机播放中拔掉</td>
+<td>扬声器自动恢复出声</td>
+</tr>
+<tr>
+<td>4</td>
+<td>拔掉后再插入</td>
+<td>再次切到耳机</td>
+</tr>
+<tr>
+<td>5</td>
+<td>重启设备 + 耳机保持插入</td>
+<td>开机后自动走耳机，扬声器不响</td>
+</tr>
+<tr>
+<td>6</td>
+<td>蓝牙耳机连接</td>
+<td>不受影响（A2DP offload 已关，走软件编码）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>反复插拔 10 次</td>
+<td>无卡死、无 ANR</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93">9.3 性能开销</h3>
+<ul>
+<li>守护脚本：每 2 秒读一次 sysfs（一次 <code>cat</code>），CPU 开销可忽略</li>
+<li>空闲内存影响：0（脚本本身 &lt; 1MB）</li>
+<li>电池影响：实测无感知</li>
+</ul>
+<hr />
+<h2 id="卸载回滚">10. 卸载回滚</h2>
+<h3 id="_3">完整卸载</h3>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>push<span class="w"> </span>WireFix-kit<span class="w"> </span>/data/local/tmp/
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"sh /data/local/tmp/WireFix-kit/scripts/uninstall.sh"</span>
+adb<span class="w"> </span>reboot
+</code></pre></div>
+
+<p>或手动：</p>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>root
+adb<span class="w"> </span>shell<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/data/adb/modules/wirefix
+adb<span class="w"> </span>shell<span class="w"> </span>pm<span class="w"> </span>uninstall<span class="w"> </span>com.abnen.wirefix<span class="w">   </span><span class="c1"># 如果残留</span>
+adb<span class="w"> </span>reboot
+</code></pre></div>
+
+<h3 id="_4">临时停用（保留模块，随时恢复）</h3>
+<div class="hl"><pre><span></span><code><span class="c1"># 禁用模块（Magisk 方式）</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"touch /data/adb/modules/wirefix/disable"</span>
+adb<span class="w"> </span>reboot
+<span class="c1"># 恢复</span>
+adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"rm /data/adb/modules/wirefix/disable"</span>
+adb<span class="w"> </span>reboot
+</code></pre></div>
+
+<h3 id="apk">只停守护脚本，保留 APK 手动控制</h3>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>shell<span class="w"> </span>su<span class="w"> </span>-c<span class="w"> </span><span class="s2">"pkill -f modules/wirefix/service.sh"</span>
+</code></pre></div>
+
+<p>之后可用 App 里的 ①② 按钮手动切换。</p>
+<hr />
+<h2 id="附录">11. 附录</h2>
+<h3 id="111">11.1 命令速查</h3>
+<div class="hl"><pre><span></span><code><span class="c1"># ===== 诊断 =====</span>
+cat<span class="w"> </span>/sys/bus/platform/drivers/Accdet_Driver/state<span class="w">    </span><span class="c1"># 耳机状态 0/2</span>
+dumpsys<span class="w"> </span>input<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>SwitchValues<span class="w">                    </span><span class="c1"># switch 位（正常应为 1 或 5）</span>
+getevent<span class="w"> </span>-pl<span class="w"> </span>/dev/input/event0<span class="w">                       </span><span class="c1"># ACCDET 设备能力</span>
+dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"Devices:"</span><span class="w">                      </span><span class="c1"># 当前输出设备</span>
+dumpsys<span class="w"> </span>audio<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>setWiredDevice<span class="w">                  </span><span class="c1"># 有线设备事件历史</span>
+tinymix<span class="w">                                              </span><span class="c1"># 混音器全景</span>
+
+<span class="c1"># ===== 验证特权 =====</span>
+pm<span class="w"> </span>path<span class="w"> </span>com.abnen.wirefix
+dumpsys<span class="w"> </span>package<span class="w"> </span>com.abnen.wirefix<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="nv">granted</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># ===== 手动触发（调试用）=====</span>
+am<span class="w"> </span>start-foreground-service<span class="w"> </span>-n<span class="w"> </span>com.abnen.wirefix/.GuardService<span class="w"> </span>--ei<span class="w"> </span>state<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># ===== 日志 =====</span>
+logcat<span class="w"> </span>-d<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-iE<span class="w"> </span><span class="s2">"wirefix|WiredAccessory|AudioService"</span>
+strings<span class="w"> </span>/cache/magisk.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>wirefix
+</code></pre></div>
+
+<h3 id="112">11.2 关键路径与常量索引</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACCDET 状态节点</td>
+<td><code>/sys/bus/platform/drivers/Accdet_Driver/state</code></td>
+</tr>
+<tr>
+<td>ACCDET 输入设备</td>
+<td><code>/dev/input/event0</code>（name=<code>ACCDET</code>）</td>
+</tr>
+<tr>
+<td>事务号</td>
+<td><code>64</code> (<code>TRANSACTION_setWiredDeviceConnectionState</code>)</td>
+</tr>
+<tr>
+<td>binder descriptor</td>
+<td><code>android.media.IAudioService</code></td>
+</tr>
+<tr>
+<td>device 常量</td>
+<td><code>DEVICE_OUT_WIRED_HEADPHONE = 8</code></td>
+</tr>
+<tr>
+<td>AudioDeviceInfo 常量</td>
+<td><code>TYPE_WIRED_HEADPHONES = 4</code></td>
+</tr>
+<tr>
+<td>role 常量</td>
+<td><code>ROLE_OUTPUT = 2</code></td>
+</tr>
+<tr>
+<td>ForceUse</td>
+<td><code>FOR_MEDIA = 1</code>，<code>FORCE_HEADPHONES = 4</code></td>
+</tr>
+<tr>
+<td>权限</td>
+<td><code>android.permission.MODIFY_AUDIO_ROUTING</code>（signature|privileged）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113">11.3 移植到其他平台</h3>
+<p><strong>高通平台（QTI）</strong>
+耳机检测不走 ACCDET。常见检测源：</p>
+<div class="hl"><pre><span></span><code><span class="c1"># 尝试这些路径</span>
+/sys/class/switch/h2w/state
+/sys/devices/virtual/switch/h2w/state
+dumpsys<span class="w"> </span>input<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>SwitchValues<span class="w">        </span><span class="c1"># 这个最通用</span>
+</code></pre></div>
+
+<p>改 <code>service.sh</code> 里的 <code>cat</code> 路径即可。</p>
+<p><strong>如果 <code>SwitchValues</code> 本来就是正确的（1 或 5）</strong>
+说明检测链路没问题，问题在 AudioPolicy 层。可以直接只用 App 的 <code>setForceUse</code> 兜底（<code>AudioWire.forceRoute</code>），不需要补发事件。</p>
+<p><strong>如果 <code>/data/adb/modules</code> 不存在（没有 Magisk）</strong>
+<code>MODIFY_AUDIO_ROUTING</code> 拿不到签名权限，本方案失效。可选路线：
+1. 用 <code>KernelSU</code> + <code>susfs</code>（同样支持 systemless 模块目录布局）
+2. 自己编译 system image 把 APK 塞进 priv-app（需要源码环境）
+3. 只做"检测 + 提示"，不做实际路由切换</p>
+<h3 id="114">11.4 方案对比表</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>可行性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cmd audio</code></td>
+<td>❌</td>
+<td>Android 11 无 shell command 实现</td>
+</tr>
+<tr>
+<td><code>cmd media.audio_policy</code></td>
+<td>❌</td>
+<td>只有 uid-state 子命令</td>
+</tr>
+<tr>
+<td><code>app_process</code> 跑 jar</td>
+<td>❌</td>
+<td>GSI 上必崩</td>
+</tr>
+<tr>
+<td><code>dalvikvm</code> 跑 jar</td>
+<td>❌</td>
+<td>ServiceManager native 未初始化</td>
+</tr>
+<tr>
+<td>普通 App 反射调用</td>
+<td>❌</td>
+<td>Hidden API 屏蔽 + 缺签名权限</td>
+</tr>
+<tr>
+<td>VMRuntime 豁免</td>
+<td>❌</td>
+<td>Phh GSI 删了该方法</td>
+</tr>
+<tr>
+<td><strong>Parcel + IBinder 直连</strong></td>
+<td>✅</td>
+<td>公开 API，绕过 Hidden API</td>
+</tr>
+<tr>
+<td><strong>+ Magisk priv-app 提权</strong></td>
+<td>✅</td>
+<td>拿到 MODIFY_AUDIO_ROUTING</td>
+</tr>
+<tr>
+<td>改 system 分区</td>
+<td>⚠️</td>
+<td>dm-verity 只读，需重刷</td>
+</tr>
+<tr>
+<td>改 kernel / vendor 驱动</td>
+<td>⚠️</td>
+<td>无源码，不可行</td>
+</tr>
+<tr>
+<td>官方固件提取驱动</td>
+<td>—</td>
+<td>本机驱动完整，无需</td>
+</tr>
+</tbody>
+</table>
+<h3 id="115">11.5 工具包结构</h3>
+<div class="hl"><pre><span></span><code>WireFix-kit/
+├── README.md                          ← 快速开始
+├── docs/
+│   └── 3.5mm音频修复教程.md            ← 本文档
+├── apk/
+│   ├── WireFix.apk                    ← 编译好的成品
+│   ├── AndroidManifest.xml            ← 清单源文件
+│   └── debug.keystore                 ← 签名密钥（口令 android）
+├── module/
+│   ├── module.prop                    ← Magisk 模块描述
+│   ├── service.sh                     ← root 守护脚本
+│   └── system/
+│       ├── priv-app/WireFix/WireFix.apk
+│       └── etc/permissions/privapp-permissions-wirefix.xml
+├── src/                               ← Java 源码（4 个文件）
+│   ├── AudioWire.java                 ← 核心：binder 直连
+│   ├── GuardService.java              ← 前台服务
+│   ├── MainActivity.java              ← 控制台 UI
+│   └── StateReceiver.java             ← 广播接收器（备用路径）
+└── scripts/
+    ├── install.sh                     ← 设备端一键安装
+    ├── uninstall.sh                   ← 设备端一键卸载
+    ├── install-windows.bat            ← 电脑端一键安装
+    ├── verify.bat                     ← 安装后自检
+    └── build.sh                       ← 从源码重新编译
+</code></pre></div>
+
+<h3 id="116">11.6 免责与风险</h3>
+<ul>
+<li>修改系统组件存在<strong>变砖风险</strong>，操作前请确保有 <strong>fastboot/9008 可进入</strong>、有官方固件包可救</li>
+<li>Magisk systemless 模块是<strong>可逆</strong>的（删目录 + 重启即恢复），但不排除个别 ROM 有兼容问题</li>
+<li>本方案<strong>不修改 system 分区</strong>，不触发 dm-verity 校验失败</li>
+<li>请自行确认所在地区法律法规与设备保修条款</li>
+</ul>
+<hr />
+<h2 id="_5">结语</h2>
+<p>这个问题的本质不是"驱动坏了"，而是 <strong>GIS/定制 ROM 的适配缺口</strong>——原厂 vendor 驱动上报的 switch 位与 AOSP 框架的期望不一致，中间少了一层转换。</p>
+<p>修复思路可以抽象成一句话：</p>
+<blockquote>
+<p><strong>当厂商驱动和 AOSP 框架对不上时，不要试图去改任何一边（通常都改不了），而是在应用层"补发"那个缺失的事件。</strong></p>
+</blockquote>
+<p>这个思路可以迁移到很多类似的适配问题上：传感器上报格式不对、按键码不一致、充电状态识别错误……只要是"底层有数据、上层不认"，都可以用同样的方式桥接。</p>
+<p>祝折腾愉快。</p>
+</div>
+</body>
+</html>
